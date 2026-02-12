@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Design Gallery</title>
+
+<style>
+body{
+  margin:0;
+  font-family:sans-serif;
+  background:#0f1115;
+  color:white;
+}
+h1{
+  padding:20px;
+  margin:0;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:20px;
+  padding:20px;
+}
+.card{
+  background:#1a1d23;
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 10px 25px rgba(0,0,0,.4);
+  transition:.25s;
+}
+.card:hover{
+  transform:translateY(-5px);
+}
+.card img{
+  width:100%;
+  display:block;
+}
+.label{
+  padding:10px;
+  font-size:13px;
+  opacity:.7;
+}
+</style>
+</head>
+<body>
+
+<h1>UI Design Collection</h1>
+<div id="gallery" class="grid"></div>
+
+<script>
+const user = "YOUR_USERNAME";
+const repo = "YOUR_REPO";
+
+async function loadGallery(){
+  const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents`);
+  const folders = await res.json();
+
+  for(const folder of folders){
+    if(folder.type !== "dir") continue;
+
+    const res2 = await fetch(folder.url);
+    const files = await res2.json();
+
+    for(const file of files){
+      if(!file.name.match(/\.(png|jpg|jpeg|webp)$/i)) continue;
+
+      const card = document.createElement("div");
+      card.className="card";
+
+      card.innerHTML = `
+        <img src="${file.download_url}">
+        <div class="label">${folder.name}</div>
+      `;
+
+      gallery.appendChild(card);
+    }
+  }
+}
+
+loadGallery();
+</script>
+
+</body>
+</html>
