@@ -15,6 +15,16 @@ h1{
   padding:20px;
   margin:0;
 }
+#controls{
+  padding:0 20px 10px 20px;
+}
+select{
+  padding:8px;
+  border-radius:8px;
+  border:none;
+  background:#1a1d23;
+  color:white;
+}
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
@@ -40,44 +50,106 @@ h1{
   font-size:13px;
   opacity:.7;
 }
+.empty{
+  padding:40px;
+  text-align:center;
+  opacity:.5;
+}
 </style>
 </head>
 <body>
 
 <h1>UI Design Collection</h1>
+
+<div id="controls">
+<select id="folderSelect">
+<option value="">Loading folders...</option>
+</select>
+</div>
+
 <div id="gallery" class="grid"></div>
 
 <script>
-const user = "YOUR_USERNAME";
-const repo = "YOUR_REPO";
+const user = "hendram";
+const repo = "websitegallery";
 
-async function loadGallery(){
-  const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents`);
-  const folders = await res.json();
+const select = document.getElementById("folderSelect");
+const gallery = document.getElementById("gallery");
 
-  for(const folder of folders){
-    if(folder.type !== "dir") continue;
+async function fetchJSON(url){
+  const res = await fetch(url);
+  if(!res.ok) throw new Error("GitHub API error");
+  return await res.json();
+}
 
-    const res2 = await fetch(folder.url);
-    const files = await res2.json();
+async function loadFolders(){
+  try{
+    const data = await fetchJSON(`https://api.github.com/repos/${user}/${repo}/contents`);
 
-    for(const file of files){
-      if(!file.name.match(/\.(png|jpg|jpeg|webp)$/i)) continue;
+    const folders = data.filter(item => item.type === "dir");
 
-      const card = document.createElement("div");
-      card.className="card";
-
-      card.innerHTML = `
-        <img src="${file.download_url}">
-        <div class="label">${folder.name}</div>
-      `;
-
-      gallery.appendChild(card);
+    if(!folders.length){
+      select.innerHTML = `<option>No folders found</option>`;
+      return;
     }
+
+    select.innerHTML = `<option value="">Select folder</option>`;
+
+    folders.forEach(f=>{
+      const opt = document.createElement("option");
+      opt.value = f.name;
+      opt.textContent = f.name;
+      select.appendChild(opt);
+    });
+
+  }catch(err){
+    select.innerHTML = `<option>Error loading repo</option>`;
+    console.error(err);
   }
 }
 
-loadGallery();
+async function loadImages(folder){
+  gallery.innerHTML = `<div class="empty">Loading...</div>`;
+
+  try{
+    const files = await fetchJSON(
+      `https://api.github.com/repos/${user}/${repo}/contents/${folder}`
+    );
+
+    gallery.innerHTML = "";
+
+    const images = files.filter(file =>
+      file.name.match(/\.(png|jpg|jpeg|webp|gif)$/i)
+    );
+
+    if(!images.length){
+      gallery.innerHTML = `<div class="empty">No images found</div>`;
+      return;
+    }
+
+    images.forEach(file=>{
+      const card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
+        <img src="${file.download_url}">
+        <div class="label">${folder}</div>
+      `;
+
+      gallery.appendChild(card);
+    });
+
+  }catch(err){
+    gallery.innerHTML = `<div class="empty">Failed to load images</div>`;
+    console.error(err);
+  }
+}
+
+select.addEventListener("change", e=>{
+  if(e.target.value) loadImages(e.target.value);
+});
+
+loadFolders();
 </script>
 
 </body>
