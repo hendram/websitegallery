@@ -11,49 +11,87 @@ body{
   background:#0f1115;
   color:white;
 }
+
 h1{
   padding:20px;
   margin:0;
 }
+
 #controls{
-  padding:0 20px 10px 20px;
+  padding:0 20px 20px;
+  display:flex;
+  gap:10px;
 }
-select{
-  padding:8px;
-  border-radius:8px;
+
+select,input{
+  padding:10px;
+  border-radius:10px;
   border:none;
   background:#1a1d23;
   color:white;
 }
+
+input{flex:1}
+
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
   gap:20px;
   padding:20px;
 }
+
 .card{
   background:#1a1d23;
   border-radius:14px;
   overflow:hidden;
+  cursor:pointer;
   box-shadow:0 10px 25px rgba(0,0,0,.4);
   transition:.25s;
 }
+
 .card:hover{
-  transform:translateY(-5px);
+  transform:translateY(-5px) scale(1.02);
 }
+
 .card img{
   width:100%;
   display:block;
 }
+
 .label{
   padding:10px;
   font-size:13px;
   opacity:.7;
 }
+
 .empty{
   padding:40px;
   text-align:center;
   opacity:.5;
+}
+
+/* fullscreen viewer */
+.viewer{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+}
+
+.viewer img{
+  max-width:90%;
+  max-height:90%;
+  border-radius:12px;
+  box-shadow:0 0 40px black;
+  animation:zoom .25s ease;
+}
+
+@keyframes zoom{
+  from{transform:scale(.8);opacity:.3}
+  to{transform:scale(1);opacity:1}
 }
 </style>
 </head>
@@ -62,91 +100,127 @@ select{
 <h1>UI Design Collection</h1>
 
 <div id="controls">
-<select id="folderSelect">
-<option value="">Loading folders...</option>
-</select>
+<select id="folderSelect"></select>
+<input id="search" placeholder="Search images...">
 </div>
 
 <div id="gallery" class="grid"></div>
 
-<script>
-const user = "hendram";
-const repo = "websitegallery";
+<div id="viewer" class="viewer">
+<img id="viewerImg">
+</div>
 
-const select = document.getElementById("folderSelect");
-const gallery = document.getElementById("gallery");
+<script>
+const user="hendram";
+const repo="websitegallery";
+
+const select=document.getElementById("folderSelect");
+const gallery=document.getElementById("gallery");
+const search=document.getElementById("search");
+const viewer=document.getElementById("viewer");
+const viewerImg=document.getElementById("viewerImg");
+
+let currentImages=[];
 
 async function fetchJSON(url){
-  const res = await fetch(url);
-  if(!res.ok) throw new Error("GitHub API error");
-  return await res.json();
+  const r=await fetch(url);
+  if(!r.ok) throw new Error(await r.text());
+  return await r.json();
+}
+
+function message(t){
+  gallery.innerHTML=`<div class="empty">${t}</div>`;
 }
 
 async function loadFolders(){
-  try{
-    const data = await fetchJSON(`https://api.github.com/repos/${user}/${repo}/contents`);
+  message("Loading repo...");
 
-    const folders = data.filter(item => item.type === "dir");
+  try{
+    const data=await fetchJSON(
+      `https://api.github.com/repos/${user}/${repo}/contents`
+    );
+
+    const folders=data.filter(i=>i.type==="dir");
+
+    select.innerHTML="";
+
+    folders.forEach(f=>{
+      const o=document.createElement("option");
+      o.value=f.name;
+      o.textContent=f.name;
+      select.appendChild(o);
+    });
 
     if(!folders.length){
-      select.innerHTML = `<option>No folders found</option>`;
+      message("No folders found");
       return;
     }
 
-    select.innerHTML = `<option value="">Select folder</option>`;
+    loadImages(folders[0].name);
 
-    folders.forEach(f=>{
-      const opt = document.createElement("option");
-      opt.value = f.name;
-      opt.textContent = f.name;
-      select.appendChild(opt);
-    });
-
-  }catch(err){
-    select.innerHTML = `<option>Error loading repo</option>`;
-    console.error(err);
+  }catch(e){
+    console.error(e);
+    message("Failed loading repo");
   }
 }
 
 async function loadImages(folder){
-  gallery.innerHTML = `<div class="empty">Loading...</div>`;
+  message("Loading images...");
 
   try{
-    const files = await fetchJSON(
+    const files=await fetchJSON(
       `https://api.github.com/repos/${user}/${repo}/contents/${folder}`
     );
 
-    gallery.innerHTML = "";
-
-    const images = files.filter(file =>
-      file.name.match(/\.(png|jpg|jpeg|webp|gif)$/i)
+    currentImages=files.filter(f=>
+      f.name.match(/\.(png|jpg|jpeg|webp|gif)$/i)
     );
 
-    if(!images.length){
-      gallery.innerHTML = `<div class="empty">No images found</div>`;
-      return;
-    }
+    render();
 
-    images.forEach(file=>{
-      const card = document.createElement("div");
-      card.className = "card";
-
-      card.innerHTML = `
-        <img src="${file.download_url}">
-        <div class="label">${folder}</div>
-      `;
-
-      gallery.appendChild(card);
-    });
-
-  }catch(err){
-    gallery.innerHTML = `<div class="empty">Failed to load images</div>`;
-    console.error(err);
+  }catch(e){
+    console.error(e);
+    message("Error loading folder");
   }
 }
 
-select.addEventListener("change", e=>{
-  if(e.target.value) loadImages(e.target.value);
+function render(){
+  const term=search.value.toLowerCase();
+  gallery.innerHTML="";
+
+  const filtered=currentImages.filter(i=>
+    i.name.toLowerCase().includes(term)
+  );
+
+  if(!filtered.length){
+    message("No images match search");
+    return;
+  }
+
+  filtered.forEach(file=>{
+    const card=document.createElement("div");
+    card.className="card";
+
+    card.innerHTML=`
+      <img src="${file.download_url}">
+      <div class="label">${file.name}</div>
+    `;
+
+    card.onclick=()=>{
+      viewerImg.src=file.download_url;
+      viewer.style.display="flex";
+    };
+
+    gallery.appendChild(card);
+  });
+}
+
+select.onchange=()=>loadImages(select.value);
+search.oninput=render;
+
+viewer.onclick=()=>viewer.style.display="none";
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape") viewer.style.display="none";
 });
 
 loadFolders();
