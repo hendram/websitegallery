@@ -11,18 +11,12 @@ body{
   background:#0f1115;
   color:white;
 }
-
-h1{
-  padding:20px;
-  margin:0;
-}
-
+h1{padding:20px;margin:0}
 #controls{
   padding:0 20px 20px;
   display:flex;
   gap:10px;
 }
-
 select,input{
   padding:10px;
   border-radius:10px;
@@ -30,7 +24,6 @@ select,input{
   background:#1a1d23;
   color:white;
 }
-
 input{flex:1}
 
 .grid{
@@ -48,39 +41,34 @@ input{flex:1}
   box-shadow:0 10px 25px rgba(0,0,0,.4);
   transition:.25s;
 }
-
 .card:hover{
   transform:translateY(-5px) scale(1.02);
 }
-
 .card img{
   width:100%;
   display:block;
 }
-
 .label{
   padding:10px;
   font-size:13px;
   opacity:.7;
 }
-
 .empty{
   padding:40px;
   text-align:center;
   opacity:.5;
 }
 
-/* fullscreen viewer */
+/* viewer */
 .viewer{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.85);
+  background:rgba(0,0,0,.9);
   display:none;
   align-items:center;
   justify-content:center;
   z-index:999;
 }
-
 .viewer img{
   max-width:90%;
   max-height:90%;
@@ -88,7 +76,6 @@ input{flex:1}
   box-shadow:0 0 40px black;
   animation:zoom .25s ease;
 }
-
 @keyframes zoom{
   from{transform:scale(.8);opacity:.3}
   to{transform:scale(1);opacity:1}
@@ -121,6 +108,10 @@ const viewer=document.getElementById("viewer");
 const viewerImg=document.getElementById("viewerImg");
 
 let currentImages=[];
+let currentIndex=0;
+let allDirs=[];
+
+/* ---------- utils ---------- */
 
 async function fetchJSON(url){
   const r=await fetch(url);
@@ -132,37 +123,52 @@ function message(t){
   gallery.innerHTML=`<div class="empty">${t}</div>`;
 }
 
+/* ---------- recursive folder loader ---------- */
+
+async function scanDir(path=""){
+  const url=`https://api.github.com/repos/${user}/${repo}/contents/${path}`;
+  const items=await fetchJSON(url);
+
+  for(const item of items){
+    if(item.type==="dir"){
+      allDirs.push(item.path);
+      await scanDir(item.path);
+    }
+  }
+}
+
+/* ---------- folder dropdown ---------- */
+
 async function loadFolders(){
-  message("Loading repo...");
+  message("Scanning repository folders...");
 
   try{
-    const data=await fetchJSON(
-      `https://api.github.com/repos/${user}/${repo}/contents`
-    );
-
-    const folders=data.filter(i=>i.type==="dir");
+    allDirs=[];
+    await scanDir("");
 
     select.innerHTML="";
 
-    folders.forEach(f=>{
-      const o=document.createElement("option");
-      o.value=f.name;
-      o.textContent=f.name;
-      select.appendChild(o);
-    });
-
-    if(!folders.length){
+    if(!allDirs.length){
       message("No folders found");
       return;
     }
 
-    loadImages(folders[0].name);
+    allDirs.forEach(dir=>{
+      const o=document.createElement("option");
+      o.value=dir;
+      o.textContent=dir;
+      select.appendChild(o);
+    });
+
+    loadImages(allDirs[0]);
 
   }catch(e){
     console.error(e);
     message("Failed loading repo");
   }
 }
+
+/* ---------- image loader ---------- */
 
 async function loadImages(folder){
   message("Loading images...");
@@ -176,6 +182,7 @@ async function loadImages(folder){
       f.name.match(/\.(png|jpg|jpeg|webp|gif)$/i)
     );
 
+    currentIndex=0;
     render();
 
   }catch(e){
@@ -183,6 +190,8 @@ async function loadImages(folder){
     message("Error loading folder");
   }
 }
+
+/* ---------- render ---------- */
 
 function render(){
   const term=search.value.toLowerCase();
@@ -197,7 +206,7 @@ function render(){
     return;
   }
 
-  filtered.forEach(file=>{
+  filtered.forEach((file,i)=>{
     const card=document.createElement("div");
     card.className="card";
 
@@ -207,21 +216,49 @@ function render(){
     `;
 
     card.onclick=()=>{
-      viewerImg.src=file.download_url;
-      viewer.style.display="flex";
+      currentIndex=i;
+      showViewer();
     };
 
     gallery.appendChild(card);
   });
 }
 
+/* ---------- viewer ---------- */
+
+function showViewer(){
+  viewerImg.src=currentImages[currentIndex].download_url;
+  viewer.style.display="flex";
+}
+
+function next(){
+  currentIndex=(currentIndex+1)%currentImages.length;
+  showViewer();
+}
+
+function prev(){
+  currentIndex=(currentIndex-1+currentImages.length)%currentImages.length;
+  showViewer();
+}
+
+/* ---------- events ---------- */
+
 select.onchange=()=>loadImages(select.value);
 search.oninput=render;
 
-viewer.onclick=()=>viewer.style.display="none";
+viewer.onclick=e=>{
+  if(e.target===viewer) viewer.style.display="none";
+};
+
 document.addEventListener("keydown",e=>{
+  if(viewer.style.display!=="flex") return;
+
   if(e.key==="Escape") viewer.style.display="none";
+  if(e.key==="ArrowRight") next();
+  if(e.key==="ArrowLeft") prev();
 });
+
+/* ---------- start ---------- */
 
 loadFolders();
 </script>
