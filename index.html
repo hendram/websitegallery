@@ -101,15 +101,13 @@ input{flex:1}
 const user="hendram";
 const repo="websitegallery";
 
-const select=document.getElementById("folderSelect");
 const gallery=document.getElementById("gallery");
-const search=document.getElementById("search");
 const viewer=document.getElementById("viewer");
 const viewerImg=document.getElementById("viewerImg");
+const search=document.getElementById("search");
 
 let currentImages=[];
 let currentIndex=0;
-let allDirs=[];
 
 /* ---------- utils ---------- */
 
@@ -123,71 +121,95 @@ function message(t){
   gallery.innerHTML=`<div class="empty">${t}</div>`;
 }
 
-/* ---------- recursive folder loader ---------- */
+function enc(path){
+  return path.split("/").map(encodeURIComponent).join("/");
+}
 
-async function scanDir(path=""){
-  const url=`https://api.github.com/repos/${user}/${repo}/contents/${path}`;
+/* ---------- dynamic select builder ---------- */
+
+const controls=document.getElementById("controls");
+controls.innerHTML="";
+
+function createSelect(level){
+  const s=document.createElement("select");
+  s.dataset.level=level;
+  controls.appendChild(s);
+  return s;
+}
+
+const s1=createSelect(1);
+const s2=createSelect(2);
+const s3=createSelect(3);
+controls.appendChild(search);
+
+/* ---------- load directories ---------- */
+
+async function getDirs(path=""){
+  const url=`https://api.github.com/repos/${user}/${repo}/contents/${enc(path)}`;
   const items=await fetchJSON(url);
-
-  for(const item of items){
-    if(item.type==="dir"){
-      allDirs.push(item.path);
-      await scanDir(item.path);
-    }
-  }
+  return items.filter(i=>i.type==="dir");
 }
 
-/* ---------- folder dropdown ---------- */
+async function fillSelect(select,path){
+  select.innerHTML="<option value=''>-- choose --</option>";
+  const dirs=await getDirs(path);
 
-async function loadFolders(){
-  message("Scanning repository folders...");
-
-  try{
-    allDirs=[];
-    await scanDir("");
-
-    select.innerHTML="";
-
-    if(!allDirs.length){
-      message("No folders found");
-      return;
-    }
-
-    allDirs.forEach(dir=>{
-      const o=document.createElement("option");
-      o.value=dir;
-      o.textContent=dir;
-      select.appendChild(o);
-    });
-
-    loadImages(allDirs[0]);
-
-  }catch(e){
-    console.error(e);
-    message("Failed loading repo");
-  }
+  dirs.forEach(d=>{
+    const o=document.createElement("option");
+    o.value=d.path;
+    o.textContent=d.name;
+    select.appendChild(o);
+  });
 }
 
-/* ---------- image loader ---------- */
+/* ---------- cascade logic ---------- */
 
-async function loadImages(folder){
+s1.onchange=async()=>{
+  gallery.innerHTML="";
+  s2.innerHTML="";
+  s3.innerHTML="";
+  if(!s1.value) return;
+  await fillSelect(s2,s1.value);
+};
+
+s2.onchange=async()=>{
+  gallery.innerHTML="";
+  s3.innerHTML="";
+  if(!s2.value) return;
+  await fillSelect(s3,s2.value);
+};
+
+s3.onchange=async()=>{
+  if(!s3.value) return;
+  await loadImagesRecursive(s3.value);
+};
+
+/* ---------- recursive image loader ---------- */
+
+async function loadImagesRecursive(path){
   message("Loading images...");
+  currentImages=[];
+
+  async function scan(p){
+    const items=await fetchJSON(
+      `https://api.github.com/repos/${user}/${repo}/contents/${enc(p)}`
+    );
+
+    for(const item of items){
+      if(item.type==="dir"){
+        await scan(item.path);
+      }else if(item.name.match(/\.(png|jpg|jpeg|webp|gif)$/i)){
+        currentImages.push(item);
+      }
+    }
+  }
 
   try{
-    const files=await fetchJSON(
-      `https://api.github.com/repos/${user}/${repo}/contents/${folder}`
-    );
-
-    currentImages=files.filter(f=>
-      f.name.match(/\.(png|jpg|jpeg|webp|gif)$/i)
-    );
-
-    currentIndex=0;
+    await scan(path);
     render();
-
   }catch(e){
     console.error(e);
-    message("Error loading folder");
+    message("Failed loading folder");
   }
 }
 
@@ -243,7 +265,6 @@ function prev(){
 
 /* ---------- events ---------- */
 
-select.onchange=()=>loadImages(select.value);
 search.oninput=render;
 
 viewer.onclick=e=>{
@@ -260,7 +281,7 @@ document.addEventListener("keydown",e=>{
 
 /* ---------- start ---------- */
 
-loadFolders();
+fillSelect(s1);
 </script>
 
 </body>
