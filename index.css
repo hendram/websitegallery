@@ -164,3 +164,17 @@ body{
   max-height:90%;
   border-radius:14px;
 }
+
+#tier1 div,#tier2 div,#tier3 div{
+  padding:8px 12px;
+  cursor:pointer;
+}
+
+.hover{
+  background:#2b2f3a;
+}
+
+.active{
+  background:#4c7eff;
+  color:white;
+}
