@@ -198,6 +198,10 @@ function render(){
 }
 
 /* ---------- VIEWER ---------- */
+function highlight(container,el,lock=false){
+  [...container.children].forEach(c=>c.classList.remove("active","hover"));
+  el.classList.add(lock?"active":"hover");
+}
 
 function openViewer(){
   viewerImg.src=currentImages[currentIndex].download_url;
