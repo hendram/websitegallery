@@ -39,44 +39,115 @@ async function getDirs(path=""){
 
 /* ---------- BUILD MENUS ---------- */
 
+/* ---------- STATE ---------- */
+
+let selectedTier1=null;
+let selectedTier2=null;
+
+/* ---------- BUILD TIER1 ---------- */
+
 async function buildTier1(){
-  if(!tier1.children.length) tier1.innerHTML="Loading...";
   const dirs=await getDirs("");
   tier1.innerHTML="";
+  tier2.innerHTML="";
+  tier3.innerHTML="";
 
   dirs.forEach(d=>{
     const el=document.createElement("div");
     el.textContent=d.name;
-    el.onmouseenter=()=>buildTier2(d.path);
-    el.onclick=()=>loadImages(d.path);
+
+    /* hover = preview */
+    el.onmouseenter=()=>{
+      if(selectedTier1===d.path) return;
+      previewTier2(d.path);
+      highlight(tier1,el);
+    };
+
+    /* click = lock */
+    el.onclick=()=>{
+      selectedTier1=d.path;
+      selectedTier2=null;
+      highlight(tier1,el,true);
+      buildTier2(d.path);
+      tier3.innerHTML="";
+      loadImages(d.path);
+    };
+
     tier1.appendChild(el);
   });
 }
 
-async function buildTier2(parent){
-  if(!tier2.children.length) tier2.innerHTML="Loading...";
-  tier3.innerHTML="";
+/* ---------- TIER2 ---------- */
+
+async function previewTier2(parent){
   const dirs=await getDirs(parent);
   tier2.innerHTML="";
+  tier3.innerHTML="";
 
   dirs.forEach(d=>{
     const el=document.createElement("div");
     el.textContent=d.name;
-    el.onmouseenter=()=>buildTier3(d.path);
-    el.onclick=()=>loadImages(d.path);
     tier2.appendChild(el);
   });
 }
 
-async function buildTier3(parent){
-  if(!tier3.children.length) tier3.innerHTML="Loading...";
+async function buildTier2(parent){
+  const dirs=await getDirs(parent);
+  tier2.innerHTML="";
+  tier3.innerHTML="";
+
+  dirs.forEach(d=>{
+    const el=document.createElement("div");
+    el.textContent=d.name;
+
+    /* hover preview only if tier1 locked */
+    el.onmouseenter=()=>{
+      if(!selectedTier1) return;
+      if(selectedTier2===d.path) return;
+      previewTier3(d.path);
+      highlight(tier2,el);
+    };
+
+    /* click lock */
+    el.onclick=()=>{
+      if(!selectedTier1) return;
+
+      selectedTier2=d.path;
+      highlight(tier2,el,true);
+      buildTier3(d.path);
+      loadImages(d.path);
+    };
+
+    tier2.appendChild(el);
+  });
+}
+
+/* ---------- TIER3 ---------- */
+
+async function previewTier3(parent){
   const dirs=await getDirs(parent);
   tier3.innerHTML="";
 
   dirs.forEach(d=>{
     const el=document.createElement("div");
     el.textContent=d.name;
-    el.onclick=()=>loadImages(d.path);
+    tier3.appendChild(el);
+  });
+}
+
+async function buildTier3(parent){
+  const dirs=await getDirs(parent);
+  tier3.innerHTML="";
+
+  dirs.forEach(d=>{
+    const el=document.createElement("div");
+    el.textContent=d.name;
+
+    el.onclick=()=>{
+      loadImages(d.path);
+      highlight(tier3,el,true);
+    };
+
     tier3.appendChild(el);
   });
 }
