@@ -7,94 +7,209 @@
 <style>
 body{
   margin:0;
-  font-family:sans-serif;
-  background:#0f1115;
-  color:white;
+  font-family:system-ui,Segoe UI,Arial;
+  background:#0b0d12;
+  color:#fff;
 }
-h1{padding:20px;margin:0}
-#controls{
-  padding:0 20px 20px;
+
+/* ---------- HEADER ---------- */
+.topbar{
+  padding:18px 24px;
   display:flex;
-  gap:10px;
+  align-items:center;
+  gap:18px;
+  background:linear-gradient(90deg,#0b0d12,#141824,#0b0d12);
+  box-shadow:0 10px 40px rgba(0,0,0,.6);
+  position:sticky;
+  top:0;
+  z-index:50;
 }
-select,input{
-  padding:10px;
+
+.logo{
+  font-size:20px;
+  font-weight:600;
+  letter-spacing:.5px;
+  opacity:.9;
+}
+
+/* ---------- MENU ---------- */
+.menu{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+.menu-item{
+  position:relative;
+}
+
+.menu-btn{
+  background:#161a23;
+  padding:10px 16px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:14px;
+  transition:.2s;
+}
+.menu-btn:hover{
+  background:#1f2532;
+}
+
+/* dropdown */
+.dropdown{
+  position:absolute;
+  top:120%;
+  left:0;
+  background:#151922;
+  border-radius:14px;
+  min-width:180px;
+  padding:8px;
+  display:none;
+  box-shadow:0 20px 40px rgba(0,0,0,.7);
+  animation:fade .15s ease;
+}
+
+.menu-item:hover .dropdown{
+  display:block;
+}
+
+.dropdown div{
+  padding:10px 12px;
+  border-radius:8px;
+  font-size:14px;
+  cursor:pointer;
+  opacity:.85;
+}
+.dropdown div:hover{
+  background:#212735;
+  opacity:1;
+}
+
+@keyframes fade{
+  from{opacity:0; transform:translateY(6px)}
+  to{opacity:1; transform:translateY(0)}
+}
+
+/* ---------- SEARCH ---------- */
+.search-wrap{
+  margin-left:10px;
+  display:flex;
+  gap:8px;
+}
+
+.search-wrap input{
+  padding:10px 14px;
   border-radius:10px;
   border:none;
-  background:#1a1d23;
-  color:white;
+  background:#151922;
+  color:#fff;
+  width:240px;
 }
-input{flex:1}
 
+.search-wrap button{
+  padding:10px 18px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(90deg,#7b5cff,#b07cff);
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+}
+.search-wrap button:hover{
+  opacity:.9;
+}
+
+/* ---------- GRID ---------- */
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-  gap:20px;
-  padding:20px;
+  gap:22px;
+  padding:26px;
 }
 
 .card{
-  background:#1a1d23;
-  border-radius:14px;
+  background:#141824;
+  border-radius:16px;
   overflow:hidden;
   cursor:pointer;
-  box-shadow:0 10px 25px rgba(0,0,0,.4);
+  box-shadow:0 10px 30px rgba(0,0,0,.6);
   transition:.25s;
 }
 .card:hover{
-  transform:translateY(-5px) scale(1.02);
+  transform:translateY(-6px) scale(1.02);
 }
+
 .card img{
   width:100%;
   display:block;
 }
+
 .label{
-  padding:10px;
+  padding:12px;
   font-size:13px;
-  opacity:.7;
-}
-.empty{
-  padding:40px;
-  text-align:center;
-  opacity:.5;
+  opacity:.75;
 }
 
-/* viewer */
+.empty{
+  padding:60px;
+  text-align:center;
+  opacity:.4;
+  font-size:15px;
+}
+
+/* ---------- VIEWER ---------- */
 .viewer{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.9);
+  background:rgba(0,0,0,.92);
   display:none;
   align-items:center;
   justify-content:center;
   z-index:999;
 }
+
 .viewer img{
   max-width:90%;
   max-height:90%;
-  border-radius:12px;
-  box-shadow:0 0 40px black;
-  animation:zoom .25s ease;
-}
-@keyframes zoom{
-  from{transform:scale(.8);opacity:.3}
-  to{transform:scale(1);opacity:1}
+  border-radius:14px;
+  box-shadow:0 0 60px black;
 }
 </style>
 </head>
 <body>
 
-<h1>UI Design Collection</h1>
+<div class="topbar">
+  <div class="logo">Design Collection</div>
 
-<div id="controls">
-<select id="folderSelect"></select>
-<input id="search" placeholder="Search images...">
+  <div class="menu">
+
+    <div class="menu-item">
+      <div class="menu-btn">First Tier</div>
+      <div class="dropdown" id="tier1"></div>
+    </div>
+
+    <div class="menu-item">
+      <div class="menu-btn">Second Tier</div>
+      <div class="dropdown" id="tier2"></div>
+    </div>
+
+    <div class="menu-item">
+      <div class="menu-btn">Third Tier</div>
+      <div class="dropdown" id="tier3"></div>
+    </div>
+
+    <div class="search-wrap">
+      <input id="search" placeholder="Search designs...">
+      <button id="searchBtn">Search</button>
+    </div>
+
+  </div>
 </div>
 
 <div id="gallery" class="grid"></div>
 
 <div id="viewer" class="viewer">
-<img id="viewerImg">
+  <img id="viewerImg">
 </div>
 
 <script>
@@ -104,12 +219,15 @@ const repo="websitegallery";
 const gallery=document.getElementById("gallery");
 const viewer=document.getElementById("viewer");
 const viewerImg=document.getElementById("viewerImg");
-const search=document.getElementById("search");
+
+const tier1=document.getElementById("tier1");
+const tier2=document.getElementById("tier2");
+const tier3=document.getElementById("tier3");
 
 let currentImages=[];
-let currentIndex=0;
+let currentPath="";
 
-/* ---------- utils ---------- */
+/* ---------- API ---------- */
 
 async function fetchJSON(url){
   const r=await fetch(url);
@@ -117,90 +235,46 @@ async function fetchJSON(url){
   return await r.json();
 }
 
+function enc(p){
+  return p.split("/").map(encodeURIComponent).join("/");
+}
+
 function message(t){
   gallery.innerHTML=`<div class="empty">${t}</div>`;
 }
 
-function enc(path){
-  return path.split("/").map(encodeURIComponent).join("/");
-}
-
-/* ---------- dynamic select builder ---------- */
-
-const controls=document.getElementById("controls");
-controls.innerHTML="";
-
-function createSelect(level){
-  const s=document.createElement("select");
-  s.dataset.level=level;
-  controls.appendChild(s);
-  return s;
-}
-
-const s1=createSelect(1);
-const s2=createSelect(2);
-const s3=createSelect(3);
-controls.appendChild(search);
-
-/* ---------- load directories ---------- */
+/* ---------- LOAD DIRS ---------- */
 
 async function getDirs(path=""){
-  const url=`https://api.github.com/repos/${user}/${repo}/contents/${enc(path)}`;
-  const items=await fetchJSON(url);
+  const items=await fetchJSON(
+    `https://api.github.com/repos/${user}/${repo}/contents/${enc(path)}`
+  );
   return items.filter(i=>i.type==="dir");
 }
 
-async function fillSelect(select,path){
-  select.innerHTML="<option value=''>-- choose --</option>";
+async function fillTier(container,path){
+  container.innerHTML="Loading...";
   const dirs=await getDirs(path);
+  container.innerHTML="";
 
   dirs.forEach(d=>{
-    const o=document.createElement("option");
-    o.value=d.path;
-    o.textContent=d.name;
-    select.appendChild(o);
+    const el=document.createElement("div");
+    el.textContent=d.name;
+    el.onclick=()=>{
+      currentPath=d.path;
+      loadImages(currentPath);
+    };
+    container.appendChild(el);
   });
+
+  if(!dirs.length)
+    container.innerHTML="<div>Empty</div>";
 }
 
-/* ---------- cascade logic ---------- */
+/* ---------- IMAGE LOAD ---------- */
 
-s1.onchange=async()=>{
-  gallery.innerHTML="";
-  s2.innerHTML="";
-  s3.innerHTML="";
-
-  if(!s1.value) return;
-
-  await fillSelect(s2,s1.value);
-  await loadImagesRecursive(s1.value);
-};
-
-s2.onchange=async()=>{
-  gallery.innerHTML="";
-  s3.innerHTML="";
-
-  if(!s2.value){
-    await loadImagesRecursive(s1.value);
-    return;
-  }
-
-  await fillSelect(s3,s2.value);
-  await loadImagesRecursive(s2.value);
-};
-
-s3.onchange=async()=>{
-  if(!s3.value){
-    await loadImagesRecursive(s2.value || s1.value);
-    return;
-  }
-
-  await loadImagesRecursive(s3.value);
-};
-
-/* ---------- recursive image loader ---------- */
-
-async function loadImagesRecursive(path){
-  message("Loading images...");
+async function loadImages(path){
+  message("Loading...");
   currentImages=[];
 
   try{
@@ -215,16 +289,17 @@ async function loadImagesRecursive(path){
     }
 
     render();
+
   }catch(e){
     console.error(e);
     message("Failed loading folder");
   }
 }
 
-/* ---------- render ---------- */
+/* ---------- RENDER ---------- */
 
 function render(){
-  const term=search.value.toLowerCase();
+  const term=document.getElementById("search").value.toLowerCase();
   gallery.innerHTML="";
 
   const filtered=currentImages.filter(i=>
@@ -232,7 +307,7 @@ function render(){
   );
 
   if(!filtered.length){
-    message("No images match search");
+    message("No results");
     return;
   }
 
@@ -246,50 +321,36 @@ function render(){
     `;
 
     card.onclick=()=>{
-      currentIndex=i;
-      showViewer();
+      viewerImg.src=file.download_url;
+      viewer.style.display="flex";
     };
 
     gallery.appendChild(card);
   });
 }
 
-/* ---------- viewer ---------- */
+/* ---------- SEARCH ---------- */
 
-function showViewer(){
-  viewerImg.src=currentImages[currentIndex].download_url;
-  viewer.style.display="flex";
-}
+document.getElementById("searchBtn").onclick=render;
+document.getElementById("search").oninput=render;
 
-function next(){
-  currentIndex=(currentIndex+1)%currentImages.length;
-  showViewer();
-}
-
-function prev(){
-  currentIndex=(currentIndex-1+currentImages.length)%currentImages.length;
-  showViewer();
-}
-
-/* ---------- events ---------- */
-
-search.oninput=render;
+/* ---------- VIEWER ---------- */
 
 viewer.onclick=e=>{
   if(e.target===viewer) viewer.style.display="none";
 };
 
 document.addEventListener("keydown",e=>{
-  if(viewer.style.display!=="flex") return;
-
   if(e.key==="Escape") viewer.style.display="none";
-  if(e.key==="ArrowRight") next();
-  if(e.key==="ArrowLeft") prev();
 });
 
-/* ---------- start ---------- */
+/* ---------- INIT ---------- */
 
-fillSelect(s1);
+fillTier(tier1,"");
+
+tier1.parentElement.onmouseenter=()=>fillTier(tier1,"");
+tier2.parentElement.onmouseenter=()=>fillTier(tier2,currentPath);
+tier3.parentElement.onmouseenter=()=>fillTier(tier3,currentPath);
 </script>
 
 </body>
