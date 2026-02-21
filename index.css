@@ -44,15 +44,22 @@ display: flex;
 /* ---------- MENU ---------- */
 .menu{
   display:flex; 
+  flex-direction: row;
   align-items:center;
-  gap:28px;
-  flex:1;
+  gap: 3vw;
   justify-content:center;
+  position: relative;
 }
 
 /* item */
-.menu-item{
-  position:relative;
+.menu-item {
+  display: none;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  position: absolute;
+  min-width: 5vw;
+  min-height: 0vh;
 }
 
 /* button */
@@ -65,43 +72,12 @@ display: flex;
   border-radius:6px;
 }
 
-.menu-btn:hover{
+.menu-btn{
   color:#4c7eff;
 }
 
-/* ---------- DROPDOWN ---------- */
-.dropdown{
-  position:absolute;
-  top:130%;
-  left:50%;
-  transform:translateX(-50%);
-
-  background:white;
-  border-radius:14px;
-  min-width:190px;
-  padding:8px;
-
-  box-shadow:0 20px 40px rgba(0,0,0,.2);
-
-  display:none;
-}
-
-.menu-item:hover .dropdown{
-  display:block;
-}
-
-.dropdown div{
-  padding:10px 14px;
-  border-radius:10px;
-  font-size:14px;
-  color:#222;
-  cursor:pointer;
-  transition:.15s;
-}
-
-.dropdown div:hover{
-  background:#f1f5ff;
-  color:#4c7eff;
+.menu:hover .menu-item{
+  display:flex;
 }
 
 /* ---------- SEARCH ---------- */
