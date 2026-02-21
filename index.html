@@ -168,19 +168,32 @@ s1.onchange=async()=>{
   gallery.innerHTML="";
   s2.innerHTML="";
   s3.innerHTML="";
+
   if(!s1.value) return;
+
   await fillSelect(s2,s1.value);
+  await loadImagesRecursive(s1.value);
 };
 
 s2.onchange=async()=>{
   gallery.innerHTML="";
   s3.innerHTML="";
-  if(!s2.value) return;
+
+  if(!s2.value){
+    await loadImagesRecursive(s1.value);
+    return;
+  }
+
   await fillSelect(s3,s2.value);
+  await loadImagesRecursive(s2.value);
 };
 
 s3.onchange=async()=>{
-  if(!s3.value) return;
+  if(!s3.value){
+    await loadImagesRecursive(s2.value || s1.value);
+    return;
+  }
+
   await loadImagesRecursive(s3.value);
 };
 
