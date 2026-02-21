@@ -24,6 +24,7 @@ display: flex;
     justify-content: center;
     width: 90vw;
     height: 8vh;
+    margin-top: 2vw;
     background-color: white;
     border-radius: 80vw;
 }
@@ -60,6 +61,8 @@ display: flex;
   position: absolute;
   min-width: 5vw;
   min-height: 0vh;
+  top: 0px;
+  left: 0px;
 }
 
 /* button */
