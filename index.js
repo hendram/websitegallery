@@ -60,11 +60,11 @@ async function buildTier1(){
     const el=document.createElement("div");
     el.textContent=d.name;
 
-    el.onmouseenter=async()=>{
-      if(selectedTier1===d.path) return;
-      highlight(tier1,el);
-      previewTier2(d.path);
-    };
+ el.onmouseenter=()=>{
+  if(selectedTier1) return; // ← CRITICAL FIX
+  previewTier2(d.path);
+  highlight(tier1,el);
+};
 
     el.onclick=async()=>{
       try{
@@ -119,7 +119,7 @@ async function buildTier2(parent){
     el.textContent=d.name;
 
     el.onmouseenter=async()=>{
-      if(!selectedTier1) return;
+    if(!selectedTier1 || selectedTier2) return;
       if(selectedTier2===d.path) return;
 
       highlight(tier2,el);
