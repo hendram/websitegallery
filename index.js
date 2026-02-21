@@ -9,8 +9,19 @@ const tier1=document.getElementById("tier1");
 const tier2=document.getElementById("tier2");
 const tier3=document.getElementById("tier3");
 
+const search=document.getElementById("search");
+const searchBtn=document.getElementById("searchBtn");
+
 let currentImages=[];
 let currentIndex=0;
+
+let selectedTier1=null;
+let selectedTier2=null;
+
+/* request guards */
+let reqTier2=0;
+let reqTier3=0;
+let reqImages=0;
 
 /* ---------- API ---------- */
 
@@ -37,14 +48,7 @@ async function getDirs(path=""){
   return items.filter(i=>i.type==="dir");
 }
 
-/* ---------- BUILD MENUS ---------- */
-
-/* ---------- STATE ---------- */
-
-let selectedTier1=null;
-let selectedTier2=null;
-
-/* ---------- BUILD TIER1 ---------- */
+/* ---------- TIER1 ---------- */
 
 async function buildTier1(){
   const dirs=await getDirs("");
@@ -56,21 +60,29 @@ async function buildTier1(){
     const el=document.createElement("div");
     el.textContent=d.name;
 
-    /* hover = preview */
-    el.onmouseenter=()=>{
+    el.onmouseenter=async()=>{
       if(selectedTier1===d.path) return;
-      previewTier2(d.path);
       highlight(tier1,el);
+      previewTier2(d.path);
     };
 
-    /* click = lock */
-    el.onclick=()=>{
-      selectedTier1=d.path;
-      selectedTier2=null;
-      highlight(tier1,el,true);
-      buildTier2(d.path);
-      tier3.innerHTML="";
-      loadImages(d.path);
+    el.onclick=async()=>{
+      try{
+        selectedTier1=d.path;
+        selectedTier2=null;
+
+        highlight(tier1,el,true);
+
+        tier2.innerHTML="Loading...";
+        tier3.innerHTML="";
+
+        await buildTier2(d.path);
+        await loadImages(d.path);
+
+      }catch(err){
+        console.error(err);
+        message("Failed loading folder");
+      }
     };
 
     tier1.appendChild(el);
@@ -80,7 +92,10 @@ async function buildTier1(){
 /* ---------- TIER2 ---------- */
 
 async function previewTier2(parent){
+  const id=++reqTier2;
   const dirs=await getDirs(parent);
+  if(id!==reqTier2) return;
+
   tier2.innerHTML="";
   tier3.innerHTML="";
 
@@ -92,7 +107,10 @@ async function previewTier2(parent){
 }
 
 async function buildTier2(parent){
+  const id=++reqTier2;
   const dirs=await getDirs(parent);
+  if(id!==reqTier2) return;
+
   tier2.innerHTML="";
   tier3.innerHTML="";
 
@@ -100,22 +118,24 @@ async function buildTier2(parent){
     const el=document.createElement("div");
     el.textContent=d.name;
 
-    /* hover preview only if tier1 locked */
-    el.onmouseenter=()=>{
+    el.onmouseenter=async()=>{
       if(!selectedTier1) return;
       if(selectedTier2===d.path) return;
-      previewTier3(d.path);
+
       highlight(tier2,el);
+      previewTier3(d.path);
     };
 
-    /* click lock */
-    el.onclick=()=>{
+    el.onclick=async()=>{
       if(!selectedTier1) return;
 
       selectedTier2=d.path;
       highlight(tier2,el,true);
-      buildTier3(d.path);
-      loadImages(d.path);
+
+      tier3.innerHTML="Loading...";
+
+      await buildTier3(d.path);
+      await loadImages(d.path);
     };
 
     tier2.appendChild(el);
@@ -125,7 +145,10 @@ async function buildTier2(parent){
 /* ---------- TIER3 ---------- */
 
 async function previewTier3(parent){
+  const id=++reqTier3;
   const dirs=await getDirs(parent);
+  if(id!==reqTier3) return;
+
   tier3.innerHTML="";
 
   dirs.forEach(d=>{
@@ -136,30 +159,38 @@ async function previewTier3(parent){
 }
 
 async function buildTier3(parent){
+  const id=++reqTier3;
   const dirs=await getDirs(parent);
+  if(id!==reqTier3) return;
+
   tier3.innerHTML="";
 
   dirs.forEach(d=>{
     const el=document.createElement("div");
     el.textContent=d.name;
 
-    el.onclick=()=>{
-      loadImages(d.path);
+    el.onclick=async()=>{
       highlight(tier3,el,true);
+      await loadImages(d.path);
     };
 
     tier3.appendChild(el);
   });
 }
 
-/* ---------- IMAGE LOAD ---------- */
+/* ---------- IMAGES ---------- */
 
 async function loadImages(path){
+  const id=++reqImages;
+
   message("Loading...");
   currentImages=[];
+
   const items=await fetchJSON(
     `https://api.github.com/repos/${user}/${repo}/contents/${enc(path)}`
   );
+
+  if(id!==reqImages) return;
 
   items.forEach(item=>{
     if(item.type==="file" && item.name.match(/\.(png|jpg|jpeg|webp|gif)$/i)){
@@ -173,7 +204,7 @@ async function loadImages(path){
 /* ---------- RENDER ---------- */
 
 function render(){
-  const term=document.getElementById("search").value.toLowerCase();
+  const term=search.value.toLowerCase();
   gallery.innerHTML="";
 
   const filtered=currentImages.filter(i=>
@@ -198,6 +229,7 @@ function render(){
 }
 
 /* ---------- VIEWER ---------- */
+
 function highlight(container,el,lock=false){
   [...container.children].forEach(c=>c.classList.remove("active","hover"));
   el.classList.add(lock?"active":"hover");
@@ -224,6 +256,7 @@ viewer.onclick=e=>{
 
 document.addEventListener("keydown",e=>{
   if(viewer.style.display!=="flex") return;
+
   if(e.key==="Escape") viewer.style.display="none";
   if(e.key==="ArrowRight") next();
   if(e.key==="ArrowLeft") prev();
