@@ -1,113 +1,152 @@
+/* ---------- BASE ---------- */
 body{
   margin:0;
   font-family:system-ui,Segoe UI,Arial;
   background:#0b0d12;
-  color:#fff;
+  color:#111;
 }
 
 /* ---------- HEADER ---------- */
 .topbar{
-  padding:18px 24px;
+  padding:22px;
   display:flex;
-  align-items:center;
-  gap:18px;
-  background:linear-gradient(90deg,#0b0d12,#141824,#0b0d12);
-  box-shadow:0 10px 40px rgba(0,0,0,.6);
-  position:sticky;
-  top:0;
-  z-index:50;
+  justify-content:center;
+  background:#0b0d12;
 }
 
+/* white container */
+.topbar > .logo,
+.topbar > .menu{
+  position:relative;
+  z-index:2;
+}
+
+.topbar{
+  position:relative;
+}
+
+.topbar::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  margin:auto;
+  width:min(1100px,92%);
+  height:64px;
+  background:white;
+  border-radius:20px;
+  box-shadow:
+    0 15px 40px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.6);
+  z-index:1;
+}
+
+/* header layout */
+.topbar{
+  align-items:center;
+  gap:40px;
+}
+
+/* ---------- LOGO ---------- */
 .logo{
-  font-size:20px;
+  font-size:18px;
   font-weight:600;
-  letter-spacing:.5px;
+  letter-spacing:.3px;
+  color:#1c1c1c;
+  margin-left:24px;
 }
 
 /* ---------- MENU ---------- */
 .menu{
   display:flex;
-  gap:12px;
   align-items:center;
+  gap:28px;
+  flex:1;
+  justify-content:center;
 }
 
-/* IMPORTANT: hover bridge */
+/* item */
 .menu-item{
   position:relative;
-  padding-bottom:14px;
 }
 
 /* button */
 .menu-btn{
-  background:#161a23;
-  padding:10px 16px;
-  border-radius:10px;
-  cursor:pointer;
+  padding:8px 4px;
   font-size:14px;
+  color:#222;
+  cursor:pointer;
   transition:.2s;
+  border-radius:6px;
 }
 
-.menu-item:hover .menu-btn{
-  background:#232a3a;
-  box-shadow:0 0 0 1px #3a4560 inset;
+.menu-btn:hover{
+  color:#4c7eff;
 }
 
-/* dropdown */
+/* ---------- DROPDOWN ---------- */
 .dropdown{
   position:absolute;
-  top:100%;
-  left:0;
-  margin-top:-6px; /* overlap fix */
-  background:#151922;
+  top:130%;
+  left:50%;
+  transform:translateX(-50%);
+
+  background:white;
   border-radius:14px;
-  min-width:180px;
+  min-width:190px;
   padding:8px;
+
+  box-shadow:0 20px 40px rgba(0,0,0,.2);
+
   display:none;
-  box-shadow:0 20px 40px rgba(0,0,0,.7);
 }
 
 .menu-item:hover .dropdown{
   display:block;
 }
 
-/* dropdown items */
 .dropdown div{
-  padding:10px 12px;
-  border-radius:8px;
+  padding:10px 14px;
+  border-radius:10px;
   font-size:14px;
+  color:#222;
   cursor:pointer;
-  opacity:.85;
+  transition:.15s;
 }
 
 .dropdown div:hover{
-  background:#2a3144;
-  opacity:1;
+  background:#f1f5ff;
+  color:#4c7eff;
 }
 
 /* ---------- SEARCH ---------- */
 .search-wrap{
-  margin-left:10px;
   display:flex;
   gap:8px;
+  margin-right:24px;
 }
 
 .search-wrap input{
-  padding:10px 14px;
-  border-radius:10px;
-  border:none;
-  background:#151922;
-  color:#fff;
-  width:240px;
+  padding:9px 14px;
+  border-radius:999px;
+  border:1px solid #e6e6e6;
+  outline:none;
+  background:white;
 }
 
 .search-wrap button{
-  padding:10px 18px;
+  padding:9px 18px;
   border:none;
-  border-radius:10px;
-  background:linear-gradient(90deg,#7b5cff,#b07cff);
+  border-radius:999px;
+  background:linear-gradient(90deg,#5b8cff,#7aa6ff);
   color:white;
   font-weight:600;
   cursor:pointer;
+  transition:.2s;
+}
+
+.search-wrap button:hover{
+  transform:translateY(-1px);
+  box-shadow:0 6px 14px rgba(92,130,255,.45);
 }
 
 /* ---------- GRID ---------- */
@@ -115,9 +154,10 @@ body{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
   gap:22px;
-  padding:26px;
+  padding:30px;
 }
 
+/* ---------- CARD ---------- */
 .card{
   background:#141824;
   border-radius:16px;
@@ -139,13 +179,14 @@ body{
 .label{
   padding:12px;
   font-size:13px;
-  opacity:.75;
+  color:#bbb;
 }
 
+/* ---------- EMPTY ---------- */
 .empty{
-  padding:60px;
+  padding:80px;
   text-align:center;
-  opacity:.4;
+  color:#666;
 }
 
 /* ---------- VIEWER ---------- */
@@ -165,13 +206,9 @@ body{
   border-radius:14px;
 }
 
-#tier1 div,#tier2 div,#tier3 div{
-  padding:8px 12px;
-  cursor:pointer;
-}
-
+/* ---------- ACTIVE STATES (JS hooks) ---------- */
 .hover{
-  background:#2b2f3a;
+  background:#eef2ff;
 }
 
 .active{
