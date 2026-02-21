@@ -50,7 +50,6 @@ async function getDirs(path=""){
 }
 
 /* ---------- TIER1 ---------- */
-
 async function buildTier1(){
   const dirs=await getDirs("");
   tier1.innerHTML="";
@@ -61,12 +60,10 @@ async function buildTier1(){
     const el=document.createElement("div");
     el.textContent=d.name;
 
- el.onmouseenter=()=>{
-  if(selectedTier1) return; // ← CRITICAL FIX
-  previewTier2(d.path);
-  highlight(tier1,el);
-};
+    /* hover = highlight only */
+    el.onmouseenter=()=>highlight(tier1,el);
 
+    /* click = load tier2 */
     el.onclick=async()=>{
       try{
         selectedTier1=d.path;
@@ -90,27 +87,9 @@ async function buildTier1(){
   });
 }
 
-/* ---------- TIER2 ---------- */
-
-async function previewTier2(parent){
-  const id=++reqTier2;
-  const dirs=await getDirs(parent);
-  if(id!==reqTier2) return;
-
-  tier2.innerHTML="";
-  tier3.innerHTML="";
-
-  dirs.forEach(d=>{
-    const el=document.createElement("div");
-    el.textContent=d.name;
-    tier2.appendChild(el);
-  });
-}
 
 async function buildTier2(parent){
-  const id=++reqTier2;
   const dirs=await getDirs(parent);
-  if(id!==reqTier2) return;
 
   tier2.innerHTML="";
   tier3.innerHTML="";
@@ -119,14 +98,10 @@ async function buildTier2(parent){
     const el=document.createElement("div");
     el.textContent=d.name;
 
-    el.onmouseenter=async()=>{
-    if(!selectedTier1 || selectedTier2) return;
-      if(selectedTier2===d.path) return;
+    /* hover highlight only */
+    el.onmouseenter=()=>highlight(tier2,el);
 
-      highlight(tier2,el);
-      previewTier3(d.path);
-    };
-
+    /* click = lock tier2 + load tier3 */
     el.onclick=async()=>{
       if(!selectedTier1) return;
 
@@ -143,32 +118,17 @@ async function buildTier2(parent){
   });
 }
 
-/* ---------- TIER3 ---------- */
-
-async function previewTier3(parent){
-  const id=++reqTier3;
-  const dirs=await getDirs(parent);
-  if(id!==reqTier3) return;
-
-  tier3.innerHTML="";
-
-  dirs.forEach(d=>{
-    const el=document.createElement("div");
-    el.textContent=d.name;
-    tier3.appendChild(el);
-  });
-}
 
 async function buildTier3(parent){
-  const id=++reqTier3;
   const dirs=await getDirs(parent);
-  if(id!==reqTier3) return;
 
   tier3.innerHTML="";
 
   dirs.forEach(d=>{
     const el=document.createElement("div");
     el.textContent=d.name;
+
+    el.onmouseenter=()=>highlight(tier3,el);
 
     el.onclick=async()=>{
       highlight(tier3,el,true);
