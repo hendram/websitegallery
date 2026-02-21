@@ -212,6 +212,7 @@ body{
   <img id="viewerImg">
 </div>
 
+
 <script>
 const user="hendram";
 const repo="websitegallery";
@@ -225,7 +226,8 @@ const tier2=document.getElementById("tier2");
 const tier3=document.getElementById("tier3");
 
 let currentImages=[];
-let currentPath="";
+let currentIndex=0;
+let activePath="";
 
 /* ---------- API ---------- */
 
@@ -243,7 +245,7 @@ function message(t){
   gallery.innerHTML=`<div class="empty">${t}</div>`;
 }
 
-/* ---------- LOAD DIRS ---------- */
+/* ---------- DIR FETCH ---------- */
 
 async function getDirs(path=""){
   const items=await fetchJSON(
@@ -252,48 +254,79 @@ async function getDirs(path=""){
   return items.filter(i=>i.type==="dir");
 }
 
-async function fillTier(container,path){
-  container.innerHTML="Loading...";
-  const dirs=await getDirs(path);
-  container.innerHTML="";
+/* ---------- BUILD MENUS ---------- */
+
+async function buildTier1(){
+  tier1.innerHTML="Loading...";
+  const dirs=await getDirs("");
+  tier1.innerHTML="";
 
   dirs.forEach(d=>{
     const el=document.createElement("div");
     el.textContent=d.name;
-    el.onclick=()=>{
-      currentPath=d.path;
-      loadImages(currentPath);
-    };
-    container.appendChild(el);
+
+    el.onmouseenter=()=>buildTier2(d.path);
+    el.onclick=()=>loadImages(d.path);
+
+    tier1.appendChild(el);
+  });
+}
+
+async function buildTier2(parent){
+  tier2.innerHTML="Loading...";
+  tier3.innerHTML="";
+
+  const dirs=await getDirs(parent);
+  tier2.innerHTML="";
+
+  dirs.forEach(d=>{
+    const el=document.createElement("div");
+    el.textContent=d.name;
+
+    el.onmouseenter=()=>buildTier3(d.path);
+    el.onclick=()=>loadImages(d.path);
+
+    tier2.appendChild(el);
   });
 
-  if(!dirs.length)
-    container.innerHTML="<div>Empty</div>";
+  if(!dirs.length) tier2.innerHTML="<div>Empty</div>";
+}
+
+async function buildTier3(parent){
+  tier3.innerHTML="Loading...";
+  const dirs=await getDirs(parent);
+  tier3.innerHTML="";
+
+  dirs.forEach(d=>{
+    const el=document.createElement("div");
+    el.textContent=d.name;
+
+    el.onclick=()=>loadImages(d.path);
+
+    tier3.appendChild(el);
+  });
+
+  if(!dirs.length) tier3.innerHTML="<div>Empty</div>";
 }
 
 /* ---------- IMAGE LOAD ---------- */
 
 async function loadImages(path){
+  activePath=path;
   message("Loading...");
   currentImages=[];
 
-  try{
-    const items=await fetchJSON(
-      `https://api.github.com/repos/${user}/${repo}/contents/${enc(path)}`
-    );
+  const items=await fetchJSON(
+    `https://api.github.com/repos/${user}/${repo}/contents/${enc(path)}`
+  );
 
-    for(const item of items){
-      if(item.type==="file" && item.name.match(/\.(png|jpg|jpeg|webp|gif)$/i)){
-        currentImages.push(item);
-      }
+  items.forEach(item=>{
+    if(item.type==="file" && item.name.match(/\.(png|jpg|jpeg|webp|gif)$/i)){
+      currentImages.push(item);
     }
+  });
 
-    render();
-
-  }catch(e){
-    console.error(e);
-    message("Failed loading folder");
-  }
+  render();
 }
 
 /* ---------- RENDER ---------- */
@@ -307,7 +340,7 @@ function render(){
   );
 
   if(!filtered.length){
-    message("No results");
+    message("No images");
     return;
   }
 
@@ -321,37 +354,51 @@ function render(){
     `;
 
     card.onclick=()=>{
-      viewerImg.src=file.download_url;
-      viewer.style.display="flex";
+      currentIndex=i;
+      openViewer();
     };
 
     gallery.appendChild(card);
   });
 }
 
-/* ---------- SEARCH ---------- */
-
-document.getElementById("searchBtn").onclick=render;
-document.getElementById("search").oninput=render;
-
 /* ---------- VIEWER ---------- */
+
+function openViewer(){
+  viewerImg.src=currentImages[currentIndex].download_url;
+  viewer.style.display="flex";
+}
+
+function next(){
+  currentIndex=(currentIndex+1)%currentImages.length;
+  openViewer();
+}
+
+function prev(){
+  currentIndex=(currentIndex-1+currentImages.length)%currentImages.length;
+  openViewer();
+}
 
 viewer.onclick=e=>{
   if(e.target===viewer) viewer.style.display="none";
 };
 
 document.addEventListener("keydown",e=>{
+  if(viewer.style.display!=="flex") return;
+
   if(e.key==="Escape") viewer.style.display="none";
+  if(e.key==="ArrowRight") next();
+  if(e.key==="ArrowLeft") prev();
 });
+
+/* ---------- SEARCH ---------- */
+
+document.getElementById("searchBtn").onclick=render;
+document.getElementById("search").oninput=render;
 
 /* ---------- INIT ---------- */
 
-fillTier(tier1,"");
-
-tier1.parentElement.onmouseenter=()=>fillTier(tier1,"");
-tier2.parentElement.onmouseenter=()=>fillTier(tier2,currentPath);
-tier3.parentElement.onmouseenter=()=>fillTier(tier3,currentPath);
+buildTier1();
 </script>
-
 </body>
 </html>
