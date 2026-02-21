@@ -45,6 +45,7 @@ async function getDirs(path=""){
   const items=await fetchJSON(
     `https://api.github.com/repos/${user}/${repo}/contents/${enc(path)}`
   );
+  console.log("items", items);
   return items.filter(i=>i.type==="dir");
 }
 
