@@ -17,47 +17,24 @@ body{
 }
 
 .topbar{
-  padding:22px;
-  display:flex;
-  justify-content:center;
-  background:#0b0d12;
+display: flex;
+    align-items: center;
+    gap: 40px;
+    flex-direction: row;
+    justify-content: center;
+    width: 90vw;
+    height: 8vh;
+    background-color: white;
+    border-radius: 80vw;
 }
 
-/* white container */
-.topbar > .logo,
-.topbar > .menu{
-  position:relative;
-  z-index:2;
-}
-
-.topbar{
-  position:relative;
-}
-
-.topbar::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  margin:auto;
-  width:min(1100px,92%);
-  height:64px;
-  background:white;
-  border-radius:20px;
-  box-shadow:
-    0 15px 40px rgba(0,0,0,.45),
-    inset 0 1px 0 rgba(255,255,255,.6);
-  z-index:1;
-}
-
-/* header layout */
-.topbar{
-  align-items:center;
-  gap:40px;
-}
-
-/* ---------- LOGO ---------- */
-.logo{
-  font-size:18px;
+  .logo{
+  display: flex;
+  flex-direction: row;
+    justify-content: flex-start;
+    width: 10vw;
+    height: 6vh;
+  font-size: 1.5w;
   font-weight:600;
   letter-spacing:.3px;
   color:#1c1c1c;
@@ -66,7 +43,7 @@ body{
 
 /* ---------- MENU ---------- */
 .menu{
-  display:flex;
+  display:flex; 
   align-items:center;
   gap:28px;
   flex:1;
