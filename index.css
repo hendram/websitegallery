@@ -1,0 +1,166 @@
+body{
+  margin:0;
+  font-family:system-ui,Segoe UI,Arial;
+  background:#0b0d12;
+  color:#fff;
+}
+
+/* ---------- HEADER ---------- */
+.topbar{
+  padding:18px 24px;
+  display:flex;
+  align-items:center;
+  gap:18px;
+  background:linear-gradient(90deg,#0b0d12,#141824,#0b0d12);
+  box-shadow:0 10px 40px rgba(0,0,0,.6);
+  position:sticky;
+  top:0;
+  z-index:50;
+}
+
+.logo{
+  font-size:20px;
+  font-weight:600;
+  letter-spacing:.5px;
+}
+
+/* ---------- MENU ---------- */
+.menu{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+/* IMPORTANT: hover bridge */
+.menu-item{
+  position:relative;
+  padding-bottom:14px;
+}
+
+/* button */
+.menu-btn{
+  background:#161a23;
+  padding:10px 16px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:14px;
+  transition:.2s;
+}
+
+.menu-item:hover .menu-btn{
+  background:#232a3a;
+  box-shadow:0 0 0 1px #3a4560 inset;
+}
+
+/* dropdown */
+.dropdown{
+  position:absolute;
+  top:100%;
+  left:0;
+  margin-top:-6px; /* overlap fix */
+  background:#151922;
+  border-radius:14px;
+  min-width:180px;
+  padding:8px;
+  display:none;
+  box-shadow:0 20px 40px rgba(0,0,0,.7);
+}
+
+.menu-item:hover .dropdown{
+  display:block;
+}
+
+/* dropdown items */
+.dropdown div{
+  padding:10px 12px;
+  border-radius:8px;
+  font-size:14px;
+  cursor:pointer;
+  opacity:.85;
+}
+
+.dropdown div:hover{
+  background:#2a3144;
+  opacity:1;
+}
+
+/* ---------- SEARCH ---------- */
+.search-wrap{
+  margin-left:10px;
+  display:flex;
+  gap:8px;
+}
+
+.search-wrap input{
+  padding:10px 14px;
+  border-radius:10px;
+  border:none;
+  background:#151922;
+  color:#fff;
+  width:240px;
+}
+
+.search-wrap button{
+  padding:10px 18px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(90deg,#7b5cff,#b07cff);
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+}
+
+/* ---------- GRID ---------- */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:22px;
+  padding:26px;
+}
+
+.card{
+  background:#141824;
+  border-radius:16px;
+  overflow:hidden;
+  cursor:pointer;
+  box-shadow:0 10px 30px rgba(0,0,0,.6);
+  transition:.25s;
+}
+
+.card:hover{
+  transform:translateY(-6px) scale(1.02);
+}
+
+.card img{
+  width:100%;
+  display:block;
+}
+
+.label{
+  padding:12px;
+  font-size:13px;
+  opacity:.75;
+}
+
+.empty{
+  padding:60px;
+  text-align:center;
+  opacity:.4;
+}
+
+/* ---------- VIEWER ---------- */
+.viewer{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.92);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+}
+
+.viewer img{
+  max-width:90%;
+  max-height:90%;
+  border-radius:14px;
+}
