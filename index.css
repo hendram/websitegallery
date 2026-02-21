@@ -102,9 +102,9 @@ body{
   color: #4c7eff;
 }
 
-/* hover persistence: keep dropdown visible when moving between button and dropdown */
-.menu-item:hover .dropdown,
-.menu-item:focus-within .dropdown{
+/* Only show dropdown if it has content */
+.menu-item:hover .dropdown:not(:empty),
+.menu-item:focus-within .dropdown:not(:empty) {
   display: flex;
 }
 
