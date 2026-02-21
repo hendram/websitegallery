@@ -60,8 +60,6 @@ display: flex;
   position: relative;
   min-width: 5vw;
   min-height: 0vh;
-  top: 0px;
-  left: 0px;
 }
 
 /* button */
