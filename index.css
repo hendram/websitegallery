@@ -45,16 +45,18 @@ body{
   align-items: center;
   justify-content: center;
   gap: 2vw;
-  position: relative;
-}
+  width: 70vw;
+  height: 6vh;
+ }
 
 /* item */
 .menu-item{
   display: flex;
   flex-direction: column;
   position: relative;
-  min-width: 5vw;
-}
+  width: 20vw;
+  min-height: 6vh;
+  }
 
 /* button */
 .menu-btn{
@@ -68,8 +70,12 @@ body{
 
 /* dropdown */
 .dropdown{
+  display: none;
+  flex-direction: column;
+  min-width: 8vw;
+  min-height: 8vh;
   position: absolute;
-  top: 100%;
+  top: 6vh;
   left: 50%;
   transform: translateX(-50%);
   background: white;
