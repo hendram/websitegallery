@@ -203,22 +203,17 @@ async function loadImagesRecursive(path){
   message("Loading images...");
   currentImages=[];
 
-  async function scan(p){
+  try{
     const items=await fetchJSON(
-      `https://api.github.com/repos/${user}/${repo}/contents/${enc(p)}`
+      `https://api.github.com/repos/${user}/${repo}/contents/${enc(path)}`
     );
 
     for(const item of items){
-      if(item.type==="dir"){
-        await scan(item.path);
-      }else if(item.name.match(/\.(png|jpg|jpeg|webp|gif)$/i)){
+      if(item.type==="file" && item.name.match(/\.(png|jpg|jpeg|webp|gif)$/i)){
         currentImages.push(item);
       }
     }
-  }
 
-  try{
-    await scan(path);
     render();
   }catch(e){
     console.error(e);
