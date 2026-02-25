@@ -8,6 +8,7 @@ const viewerImg=document.getElementById("viewerImg");
 const tier1=document.getElementById("tier1");
 const tier2=document.getElementById("tier2");
 const tier3=document.getElementById("tier3");
+const tier4=document.getElementById("tier4");
 
 const search=document.getElementById("search");
 const searchBtn=document.getElementById("searchBtn");
@@ -17,6 +18,7 @@ let currentIndex=0;
 
 let selectedTier1=null;
 let selectedTier2=null;
+let selectedTier3=null;
 
 /* request guards */
 let reqTier2=0;
@@ -73,7 +75,8 @@ async function buildTier1(){
 
         tier2.innerHTML="Loading...";
         tier3.innerHTML="";
-
+        tier4.innerHTML="";
+        
         await buildTier2(d.path);
         await loadImages(d.path);
 
@@ -109,6 +112,7 @@ async function buildTier2(parent){
       highlight(tier2,el,true);
 
       tier3.innerHTML="Loading...";
+      tier4.innerHTML="";
 
       await buildTier3(d.path);
       await loadImages(d.path);
@@ -118,11 +122,11 @@ async function buildTier2(parent){
   });
 }
 
-
 async function buildTier3(parent){
   const dirs=await getDirs(parent);
 
   tier3.innerHTML="";
+  tier4.innerHTML="";
 
   dirs.forEach(d=>{
     const el=document.createElement("div");
@@ -131,11 +135,37 @@ async function buildTier3(parent){
     el.onmouseenter=()=>highlight(tier3,el);
 
     el.onclick=async()=>{
+      selectedTier3=d.path;
+
       highlight(tier3,el,true);
+
+      tier4.innerHTML="Loading...";
+
+      await buildTier4(d.path);
       await loadImages(d.path);
     };
 
     tier3.appendChild(el);
+  });
+}
+
+async function buildTier4(parent){
+  const dirs=await getDirs(parent);
+
+  tier4.innerHTML="";
+
+  dirs.forEach(d=>{
+    const el=document.createElement("div");
+    el.textContent=d.name;
+
+    el.onmouseenter=()=>highlight(tier4,el);
+
+    el.onclick=async()=>{
+      highlight(tier4,el,true);
+      await loadImages(d.path);
+    };
+
+    tier4.appendChild(el);
   });
 }
 
