@@ -93,7 +93,7 @@ body{
   display: none;
   flex-direction: column;
   min-width: 8vw;
-  min-height: 8vh;
+  min-height: 6vh;
   position: absolute;
   top: 6vh;
   left: 50%;
@@ -105,7 +105,13 @@ body{
   z-index: 100;
 }
 
-.dropdown div{
+.dropdown div{'
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  min-width: 6vw;
+  min-height: 6vh;
   border-radius: 1vw;
   font-size: 1.2vw;
   color: #222;
