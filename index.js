@@ -53,46 +53,45 @@ async function getDirs(path=""){
 
 /* ---------- FONTS ---------- */
 
-async function loadFontsGallery(path = "fonts") {
+async function loadFontsGallery() {
   gallery.innerHTML = "Loading fonts...";
-
-  const items = await fetchJSON(
-    `https://api.github.com/repos/${user}/${repo}/contents/${enc(path)}`
+  
+  const fontFolders = await fetchJSON(
+    `https://api.github.com/repos/${user}/${repo}/contents/fonts`
   );
 
   gallery.innerHTML = "";
 
-  for (const item of items) {
-    if (item.type === "dir") {
-      // recurse into subfolder automatically
-      const subItems = await fetchJSON(item.url);
+  for (const folder of fontFolders) {
+    if (folder.type !== "dir") continue; // skip anything that isn't a folder
 
-      for (const f of subItems) {
-        if (!f.name.match(/\.(woff2?|ttf)$/i)) continue;
+    const files = await fetchJSON(folder.url); // fetch files in subfolder
 
-        const fontID = "f_" + f.name.replace(/[^a-z0-9]/gi,"");
-        const style = document.createElement("style");
-        style.textContent = `
+    for (const f of files) {
+      if (!f.name.endsWith(".woff2")) continue; // only .woff2
+
+      const fontID = "f_" + f.name.replace(/[^a-z0-9]/gi,"");
+      const style = document.createElement("style");
+      style.textContent = `
 @font-face {
   font-family: "${fontID}";
-  src: url("https://raw.githubusercontent.com/${user}/${repo}/main/${f.path}") format("${f.name.endsWith('woff2')?'woff2':'woff'}");
+  src: url("https://raw.githubusercontent.com/${user}/${repo}/main/${f.path}") format("woff2");
   font-display: swap;
 }`;
-        document.head.appendChild(style);
+      document.head.appendChild(style);
 
-        const fontName = f.name.replace(/\.(woff2?|ttf)$/i,"").replace(/[-_]/g," ");
-        const card = document.createElement("div");
-        card.className = "fontCard";
-        card.innerHTML = `
-          <div class="fontTitle">${fontName}</div>
-          <div class="fontPreview" style="font-family:${fontID}">
-            The quick brown fox jumps over the lazy dog 123456789
-          </div>
-        `;
-        gallery.appendChild(card);
+      const fontName = f.name.replace(/\.woff2$/i,"").replace(/[-_]/g," ");
+      const card = document.createElement("div");
+      card.className = "fontCard";
+      card.innerHTML = `
+        <div class="fontTitle">${fontName}</div>
+        <div class="fontPreview" style="font-family:${fontID}">
+          The quick brown fox jumps over the lazy dog 123456789
+        </div>
+      `;
+      gallery.appendChild(card);
 
-        await document.fonts.load(`16px "${fontID}"`);
-      }
+      await document.fonts.load(`16px "${fontID}"`); // wait for font to load
     }
   }
 
