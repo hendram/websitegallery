@@ -44,7 +44,7 @@ function message(t){
 /* ---------- DIR FETCH ---------- */
 
 async function getDirs(path="") {
-  const token = "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";
+  const token = "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";
 
   const items = await fetchJSON(
     `https://api.github.com/repos/${user}/${repo}/contents/${enc(path)}`,
@@ -59,7 +59,7 @@ async function getDirs(path="") {
 
 async function loadFontsGallery() {
   gallery.innerHTML = "Loading fonts...";
-  const token = "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";  
+  const token = "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";  
 
   const fontFolders = await fetchJSON(
     `https://api.github.com/repos/${user}/${repo}/contents/fonts`,
