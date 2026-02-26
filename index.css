@@ -16,6 +16,7 @@ body{
   align-items: center;
   width: 100vw;
   min-height: 100vh;
+  gap: 2vh;
 }
 
 .topbar{
@@ -177,10 +178,11 @@ body{
 /* ---------- GRID ---------- */
 .grid{
   display: grid;
-  width: 99vw;
-  grid-template-columns: repeat(auto-fill, minmax(25vw, 1fr));
-  gap: 2vw;
-  padding: 3vh 2vw;
+  width: 90vw;
+  grid-template-columns: repeat(auto-fill, 25vw);
+  gap: 2vw 2vh;
+  justify-content: center;
+  align-items: center;
 }
 
 /* ---------- CARD ---------- */
