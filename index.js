@@ -53,33 +53,32 @@ async function getDirs(path=""){
 
 /* ---------- FONTS ---------- */
 
-async function loadFontsGallery(){
+async function loadFontsGalleryStream() {
   gallery.innerHTML = "Loading fonts...";
 
-  // One API call to list all font files under /fonts
+  // Fetch all font files once
   const files = await fetchJSON(
     `https://api.github.com/repos/${user}/${repo}/contents/fonts`
   );
 
   gallery.innerHTML = "";
 
-  files.forEach(file => {
-    // Only consider .woff / .woff2 files
-    if(!file.name.match(/\.(woff2?|ttf)$/i)) return;
+  for (const file of files) {
+    if (!file.name.match(/\.(woff2?|ttf)$/i)) continue;
 
-    const fontID = "f_" + file.name.replace(/[^a-z0-9]/gi,"");
+    const fontID = "f_" + file.name.replace(/[^a-z0-9]/gi, "");
 
-    // Inject @font-face using raw.githubusercontent.com
+    // Create <style> dynamically
     const style = document.createElement("style");
     style.textContent = `
 @font-face {
   font-family: "${fontID}";
   src: url("https://raw.githubusercontent.com/${user}/${repo}/main/fonts/${encodeURIComponent(file.name)}") format("${file.name.endsWith('woff2')?'woff2':'woff'}");
-}
-`;
+  font-display: swap;
+}`;
     document.head.appendChild(style);
 
-    // Add card
+    // Create card
     const fontName = file.name.replace(/\.(woff2?|ttf)$/i,"").replace(/[-_]/g," ");
     const card = document.createElement("div");
     card.className = "fontCard";
@@ -89,14 +88,18 @@ async function loadFontsGallery(){
         The quick brown fox jumps over the lazy dog 123456789
       </div>
     `;
-    gallery.appendChild(card);
-  });
 
-  if(!gallery.children.length){
+    // Append one by one
+    gallery.appendChild(card);
+
+    // Optional: force browser to load the font before moving on
+    await document.fonts.load(`16px "${fontID}"`);
+  }
+
+  if (!gallery.children.length) {
     message("No fonts found");
   }
 }
-
 /* ---------- TIER1 ---------- */
 async function buildTier1(){
   const dirs=await getDirs("");
