@@ -80,7 +80,7 @@ body{
   justify-content: center;
   align-items: center;
   height: 4vh;
-  font-size: 1.1vw;
+  font-size: 1.2vw;
   color: #4c7eff;
   cursor: pointer;
      font-family: 'Pacifico', cursive;
@@ -105,7 +105,7 @@ body{
   z-index: 100;
 }
 
-.dropdown div{'
+.dropdown div{
   display: flex;
   flex-direction: row;
   justify-content: center;
