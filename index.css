@@ -66,6 +66,8 @@ body{
 .menu-item{
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
   position: relative;
   width: 10vw;
   min-height: 6vh;
@@ -73,12 +75,15 @@ body{
 
 /* button */
 .menu-btn{
-  padding: 1vh 1vw;
+  display: flex;
+  flex-direction: row;
+  min-width:6vvw;
+  height: 4vh;
   font-size: 1.2vw;
   color: #4c7eff;
   cursor: pointer;
      font-family: 'Pacifico', cursive;
-  border-radius: 1vh;
+  border-radius: 1vw;
   transition: all 0.2s;
 }
 
@@ -97,8 +102,6 @@ body{
   min-width: 15vw;
   padding: 1vh 0;
   box-shadow: 0 2vh 4vh rgba(0,0,0,0.2);
-  display: none;
-  flex-direction: column;
   z-index: 100;
 }
 
@@ -135,18 +138,24 @@ body{
 }
 
 .search-wrap input{
-  padding: 1vh 1vw;
-  border-radius: 10vh;
-  border: 0.1vh solid #e6e6e6;
+  display: flex;
+  flex-direction: row;
+  width: 14vw;
+  height: 4vh;
+  border-radius: 10vw;
+  border: 0.1vw solid #e6e6e6;
   background: white;
   outline: none;
   font-size: 1.2vw;
 }
 
 .search-wrap button{
-  padding: 1vh 2vw;
-  border: none;
-  border-radius: 10vh;
+  display: flex;
+  flex-direction:row;
+  width: 5vw;
+  height: 4vh;
+ border: none;
+  border-radius: 4vw;
   background: linear-gradient(90deg,#5b8cff,#7aa6ff);
   color: white;
   font-weight: 600;
