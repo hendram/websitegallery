@@ -142,16 +142,13 @@ body{
 }
 
 .search-wrap input{
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
   width: 12vw;
-  height: 4vh;
+  height: 4.5vh;
   border-radius: 10vw;
   border: 0.1vw solid #e6e6e6;
   background: white;
   outline: none;
+  text-align: center;
   font-size: 1.2vw;
 }
 
@@ -159,9 +156,9 @@ body{
   display: flex;
   flex-direction:row; 
     align-items: center; 
-  justify-content: content;
+  justify-content: center;
   width: 7vw;
-  height: 4vh;
+  height: 4.5vh;
  border: none;
   border-radius: 4vw;
   background: linear-gradient(90deg,#5b8cff,#7aa6ff);
