@@ -53,7 +53,7 @@ async function getDirs(path=""){
 
 /* ---------- FONTS ---------- */
 
-async function loadFontsFromFolder(path = "fonts") {
+async function loadFontsGallery(path = "fonts") {
   gallery.innerHTML = "Loading fonts...";
 
   const items = await fetchJSON(
