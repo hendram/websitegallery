@@ -53,48 +53,59 @@ return items.filter(i=>i.type==="dir");
 async function loadFontsGallery() {
   gallery.innerHTML = "Loading fonts...";
 
-  const fontFolders = await fetchJSON(
-    `https://api.github.com/repos/${user}/${repo}/contents/fonts`
-  );
+  // raw.githubusercontent link to your JSON file
+  const jsonURL = "https://raw.githubusercontent.com/hendram/websitegallery/main/indexfont.json";
 
+  let data;
+  try {
+    const r = await fetch(jsonURL);
+    if (!r.ok) throw new Error("Failed fetching JSON: " + r.statusText);
+    data = await r.json();
+  } catch (err) {
+    gallery.innerHTML = `<div class="empty">Error loading fonts</div>`;
+    console.error(err);
+    return;
+  }
+
+  const fonts = data.fonts || [];
   gallery.innerHTML = "";
 
-  for (const folder of fontFolders) {
-    if (folder.type !== "dir") continue; // skip anything that isn't a folder
+  if (!fonts.length) {
+    gallery.innerHTML = `<div class="empty">No fonts found</div>`;
+    return;
+  }
 
-const files = await fetchJSON(folder.url);
+  fonts.forEach(fpath => {
+    // derive label from subdirectory: fonts/<subdir>/<filename>
+    const parts = fpath.split("/");
+    const label = parts.length >= 3 ? parts[1] : "Unknown";
 
-    for (const f of files) {
-      if (!f.name.endsWith(".woff2")) continue; // only .woff2
+    const filename = parts[parts.length - 1];
+    const fontID = "f_" + filename.replace(/[^a-z0-9]/gi,"");
 
-      const fontID = "f_" + f.name.replace(/[^a-z0-9]/gi,"");
-      const style = document.createElement("style");
-      style.textContent = `
+    // inject @font-face
+    const style = document.createElement("style");
+    style.textContent = `
 @font-face {
   font-family: "${fontID}";
-  src: url("https://raw.githubusercontent.com/${user}/${repo}/main/${f.path}") format("woff2");
+  src: url("https://raw.githubusercontent.com/hendram/websitegallery/main/${fpath}") format("woff2");
   font-display: swap;
 }`;
-      document.head.appendChild(style);
+    document.head.appendChild(style);
 
-      const fontName = f.name.replace(/\.woff2$/i,"").replace(/[-_]/g," ");
-      const card = document.createElement("div");
-      card.className = "fontCard";
-      card.innerHTML = `
-        <div class="fontTitle">${fontName}</div>
-        <div class="fontPreview" style="font-family:${fontID}">
-          The quick brown fox jumps over the lazy dog 123456789
-        </div>
-      `;
-      gallery.appendChild(card);
+    // font card
+    const card = document.createElement("div");
+    card.className = "fontCard";
+    card.innerHTML = `
+      <div class="fontTitle">${label}</div>
+      <div class="fontPreview" style="font-family:${fontID}">
+        The quick brown fox jumps over the lazy dog 123456789
+      </div>
+    `;
+    gallery.appendChild(card);
 
-      await document.fonts.load(`16px "${fontID}"`); // wait for font to load
-    }
-  }
-
-  if (!gallery.children.length) {
-    message("No fonts found");
-  }
+    document.fonts.load(`16px "${fontID}"`).catch(e => console.warn("Font load failed:", e));
+  });
 }
 
 /* ---------- TIER1 ---------- */
