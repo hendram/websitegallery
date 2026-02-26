@@ -67,7 +67,7 @@ body{
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   position: relative;
   width: 10vw;
   min-height: 6vh;
@@ -77,9 +77,10 @@ body{
 .menu-btn{
   display: flex;
   flex-direction: row;
-  min-width:6vvw;
+  justify-content: center;
+  align-items: center;
   height: 4vh;
-  font-size: 1.2vw;
+  font-size: 1.1vw;
   color: #4c7eff;
   cursor: pointer;
      font-family: 'Pacifico', cursive;
