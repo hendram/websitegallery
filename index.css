@@ -31,11 +31,15 @@ body{
 }
 
 @font-face{
-  font-family:"Pacifico";
-  src:url("fonts/pasifico/Pacifico-Regular.woff2") format("woff2");
+  font-family:"Caveat";
+  src:url("fonts/caveat/Caveat-Regular.woff2") format("woff2");
   font-weight:400;
-  font-style:normal;
-  font-display:swap;
+}
+
+@font-face{
+  font-family:"Caveat";
+  src:url("fonts/caveat/Caveat-Bold.woff2") format("woff2");
+  font-weight:700;
 }
 
 
@@ -46,7 +50,7 @@ body{
   justify-content: center;
   width: 10vw;
   height: 6vh;
-   font-family: 'Pacifico', cursive;
+   font-family: 'Caveat-Bold', cursive;
   font-size: 1.5vw;
   font-weight: 400;
   color: #1c1c1c;
@@ -79,6 +83,7 @@ body{
   font-size: 1.2vw;
   color: #4c7eff;
   cursor: pointer;
+     font-family: 'Caveat-Regular', cursive;
   border-radius: 1vh;
   transition: all 0.2s;
 }
