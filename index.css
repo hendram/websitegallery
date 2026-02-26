@@ -101,7 +101,6 @@ body{
   background: white;
   border-radius: 2vh;
   min-width: 15vw;
-  padding: 1vh 0;
   box-shadow: 0 2vh 4vh rgba(0,0,0,0.2);
   z-index: 100;
 }
