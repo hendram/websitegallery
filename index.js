@@ -51,6 +51,50 @@ async function getDirs(path=""){
   return items.filter(i=>i.type==="dir");
 }
 
+
+async function loadFontsGallery(){
+  gallery.innerHTML="Loading fonts...";
+
+  const fontDirs = await getDirs("fonts");
+
+  gallery.innerHTML="";
+
+  for(const dir of fontDirs){
+
+    const files = await fetchJSON(
+      `https://api.github.com/repos/${user}/${repo}/contents/${enc(dir.path)}`
+    );
+
+    const fontFile = files.find(f=>f.name.endsWith(".woff2"));
+    if(!fontFile) continue;
+
+    const fontName = dir.name.replace(/[-_]/g," ");
+
+    /* inject font face */
+    const style=document.createElement("style");
+    style.textContent=`
+    @font-face{
+      font-family:"f_${dir.name}";
+      src:url("${fontFile.download_url}") format("woff2");
+    }`;
+    document.head.appendChild(style);
+
+    /* card */
+    const card=document.createElement("div");
+    card.className="fontCard";
+
+    card.innerHTML=`
+      <div class="fontTitle">${fontName}</div>
+      <div class="fontPreview" style="font-family:f_${dir.name}">
+        The quick brown fox jumps over the lazy dog 123456789
+      </div>
+    `;
+
+    gallery.appendChild(card);
+  }
+}
+
+
 /* ---------- TIER1 ---------- */
 async function buildTier1(){
   const dirs=await getDirs("");
@@ -67,23 +111,31 @@ async function buildTier1(){
 
     /* click = load tier2 */
     el.onclick=async()=>{
-      try{
-        selectedTier1=d.path;
-        selectedTier2=null;
+ try{
+  selectedTier1=d.path;
+  selectedTier2=null;
 
-        highlight(tier1,el,true);
+  highlight(tier1,el,true);
 
-        tier2.innerHTML="Loading...";
-        tier3.innerHTML="";
-        tier4.innerHTML="";
-        
-        await buildTier2(d.path);
-        await loadImages(d.path);
+  tier2.innerHTML="";
+  tier3.innerHTML="";
+  tier4.innerHTML="";
 
-      }catch(err){
-        console.error(err);
-        message("Failed loading folder");
-      }
+  /* ---------- SPECIAL MODE FOR FONTS ---------- */
+  if(d.name==="fonts"){
+    await loadFontsGallery();
+    return;
+  }
+
+  /* normal mode */
+  tier2.innerHTML="Loading...";
+  await buildTier2(d.path);
+  await loadImages(d.path);
+
+}catch(err){
+  console.error(err);
+  message("Failed loading folder");
+}
     };
 
     tier1.appendChild(el);
