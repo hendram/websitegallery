@@ -84,17 +84,19 @@ style.textContent=`
 document.head.appendChild(style);
     
     /* card */
-    const card=document.createElement("div");
-    card.className="fontCard";
+    const fontName = dir.name.replace(/[-_]/g," ");
 
-    card.innerHTML=`
-      <div class="fontTitle">${fontName}</div>
-      <div class="fontPreview" style="font-family:f_${dir.name}">
-        The quick brown fox jumps over the lazy dog 123456789
-      </div>
-    `;
+const card=document.createElement("div");
+card.className="fontCard";
 
-    gallery.appendChild(card);
+card.innerHTML=`
+  <div class="fontTitle">${fontName}</div>
+  <div class="fontPreview" style="font-family:${fontID}">
+    The quick brown fox jumps over the lazy dog 123456789
+  </div>
+`;
+
+gallery.appendChild(card);
   }
 }
 
