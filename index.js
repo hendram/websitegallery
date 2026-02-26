@@ -53,7 +53,7 @@ async function getDirs(path=""){
 
 /* ---------- FONTS ---------- */
 
-async function loadFontsGalleryStream() {
+async function loadFontsGallery() {
   gallery.innerHTML = "Loading fonts...";
 
   // Fetch all font files once
