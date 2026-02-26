@@ -106,8 +106,7 @@ body{
 }
 
 .dropdown div{
-  padding: 1vh 1.5vw;
-  border-radius: 1vh;
+  border-radius: 1vw;
   font-size: 1.2vw;
   color: #222;
   cursor: pointer;
