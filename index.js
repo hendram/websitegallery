@@ -65,20 +65,24 @@ async function loadFontsGallery(){
       `https://api.github.com/repos/${user}/${repo}/contents/${enc(dir.path)}`
     );
 
-    const fontFile = files.find(f=>f.name.endsWith(".woff2"));
-    if(!fontFile) continue;
+   const fontFile =
+  files.find(f=>/\.woff2$/i.test(f.name)) ||
+  files.find(f=>/\.woff$/i.test(f.name));
 
-    const fontName = dir.name.replace(/[-_]/g," ");
+if(!fontFile) continue;
 
-    /* inject font face */
-    const style=document.createElement("style");
-    style.textContent=`
-    @font-face{
-      font-family:"f_${dir.name}";
-      src:url("${fontFile.download_url}") format("woff2");
-    }`;
-    document.head.appendChild(style);
+const fontID = "f_" + dir.name.replace(/[^a-z0-9]/gi,"");
 
+const style=document.createElement("style");
+style.textContent=`
+@font-face{
+  font-family:"${fontID}";
+  src:url("${fontFile.download_url}") format("${fontFile.name.endsWith('woff2')?'woff2':'woff'}");
+}
+`;
+    
+document.head.appendChild(style);
+    
     /* card */
     const card=document.createElement("div");
     card.className="fontCard";
