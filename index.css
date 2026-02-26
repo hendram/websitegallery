@@ -185,6 +185,28 @@ body{
   align-items: center;
 }
 
+.fontCard{
+  width:80vw;
+  background:#111;
+  border-radius:1vh;
+  padding:2vh 2vw;
+  margin:1vh auto;
+  box-shadow:0 1vh 2vh rgba(0,0,0,.5);
+}
+
+.fontTitle{
+  font-size:1.4vw;
+  color:#7aa6ff;
+  margin-bottom:1vh;
+}
+
+.fontPreview{
+  font-size:2vw;
+  color:white;
+}
+
+
+
 /* ---------- CARD ---------- */
 .card{
   background: #141824;
