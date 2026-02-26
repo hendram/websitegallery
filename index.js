@@ -51,55 +51,51 @@ async function getDirs(path=""){
   return items.filter(i=>i.type==="dir");
 }
 
+/* ---------- FONTS ---------- */
 
 async function loadFontsGallery(){
-  gallery.innerHTML="Loading fonts...";
+  gallery.innerHTML = "Loading fonts...";
 
-  const fontDirs = await getDirs("fonts");
+  // One API call to list all font files under /fonts
+  const files = await fetchJSON(
+    `https://api.github.com/repos/${user}/${repo}/contents/fonts`
+  );
 
-  gallery.innerHTML="";
+  gallery.innerHTML = "";
 
-  for(const dir of fontDirs){
+  files.forEach(file => {
+    // Only consider .woff / .woff2 files
+    if(!file.name.match(/\.(woff2?|ttf)$/i)) return;
 
-    const files = await fetchJSON(
-      `https://api.github.com/repos/${user}/${repo}/contents/${enc(dir.path)}`
-    );
+    const fontID = "f_" + file.name.replace(/[^a-z0-9]/gi,"");
 
-   const fontFile =
-  files.find(f=>/\.woff2$/i.test(f.name)) ||
-  files.find(f=>/\.woff$/i.test(f.name));
-
-if(!fontFile) continue;
-
-const fontID = "f_" + dir.name.replace(/[^a-z0-9]/gi,"");
-
-const style=document.createElement("style");
-style.textContent=`
-@font-face{
-  font-family:"${fontID}";
-  src:url("${fontFile.download_url}") format("${fontFile.name.endsWith('woff2')?'woff2':'woff'}");
+    // Inject @font-face using raw.githubusercontent.com
+    const style = document.createElement("style");
+    style.textContent = `
+@font-face {
+  font-family: "${fontID}";
+  src: url("https://raw.githubusercontent.com/${user}/${repo}/main/fonts/${encodeURIComponent(file.name)}") format("${file.name.endsWith('woff2')?'woff2':'woff'}");
 }
 `;
-    
-document.head.appendChild(style);
-    
-    /* card */
-    const fontName = dir.name.replace(/[-_]/g," ");
+    document.head.appendChild(style);
 
-const card=document.createElement("div");
-card.className="fontCard";
+    // Add card
+    const fontName = file.name.replace(/\.(woff2?|ttf)$/i,"").replace(/[-_]/g," ");
+    const card = document.createElement("div");
+    card.className = "fontCard";
+    card.innerHTML = `
+      <div class="fontTitle">${fontName}</div>
+      <div class="fontPreview" style="font-family:${fontID}">
+        The quick brown fox jumps over the lazy dog 123456789
+      </div>
+    `;
+    gallery.appendChild(card);
+  });
 
-card.innerHTML=`
-  <div class="fontTitle">${fontName}</div>
-  <div class="fontPreview" style="font-family:${fontID}">
-    The quick brown fox jumps over the lazy dog 123456789
-  </div>
-`;
-
-gallery.appendChild(card);
+  if(!gallery.children.length){
+    message("No fonts found");
   }
 }
-
 
 /* ---------- TIER1 ---------- */
 async function buildTier1(){
