@@ -69,7 +69,7 @@ body{
   justify-content: center;
   align-items: center;
   position: relative;
-  width: 10vw;
+  min-width: 8vw;
   min-height: 6vh;
   }
 
