@@ -43,10 +43,9 @@ function message(t){
 /* ---------- DIR FETCH ---------- */
 
 async function getDirs(path=""){ 
-const items = await fetchJSON( https://api.github.com/repos/${user}/${repo}/contents/${enc(path)} ); 
-return items.filter(i=>i.type==="dir");
-
- }
+  const items = await fetchJSON(`https://api.github.com/repos/${user}/${repo}/contents/${enc(path)}`); 
+  return items.filter(i => i.type === "dir");
+}
 
 /* ---------- FONTS ---------- */
 
