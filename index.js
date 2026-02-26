@@ -27,9 +27,9 @@ let reqImages=0;
 
 /* ---------- API ---------- */
 
-async function fetchJSON(url){
-  const r=await fetch(url);
-  if(!r.ok) throw new Error(await r.text());
+async function fetchJSON(url, headers = {}) {
+  const r = await fetch(url, { headers }); // now fetch gets the headers
+  if (!r.ok) throw new Error(await r.text());
   return await r.json();
 }
 
@@ -43,21 +43,27 @@ function message(t){
 
 /* ---------- DIR FETCH ---------- */
 
-async function getDirs(path=""){
-  const items=await fetchJSON(
-    `https://api.github.com/repos/${user}/${repo}/contents/${enc(path)}`
+async function getDirs(path="") {
+  const token = "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";
+
+  const items = await fetchJSON(
+    `https://api.github.com/repos/${user}/${repo}/contents/${enc(path)}`,
+    { "Authorization": `token ${token}` }
   );
-  console.log("items", items);
-  return items.filter(i=>i.type==="dir");
+
+  return items.filter(i => i.type === "dir");
 }
+
 
 /* ---------- FONTS ---------- */
 
 async function loadFontsGallery() {
   gallery.innerHTML = "Loading fonts...";
-  
+  const token "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";  
+
   const fontFolders = await fetchJSON(
-    `https://api.github.com/repos/${user}/${repo}/contents/fonts`
+    `https://api.github.com/repos/${user}/${repo}/contents/fonts`,
+     { "Authorization": `token ${token}` }
   );
 
   gallery.innerHTML = "";
@@ -65,7 +71,7 @@ async function loadFontsGallery() {
   for (const folder of fontFolders) {
     if (folder.type !== "dir") continue; // skip anything that isn't a folder
 
-    const files = await fetchJSON(folder.url); // fetch files in subfolder
+const files = await fetchJSON(folder.url, { "Authorization": `token ${token}` });
 
     for (const f of files) {
       if (!f.name.endsWith(".woff2")) continue; // only .woff2
